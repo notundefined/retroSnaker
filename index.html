@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>贪吃蛇</title>
+	<style type="text/css">
+	*{
+		padding:0;
+		margin:0;
+	}
+	html,body{
+		width:100%;
+		height:100%;
+	}
+	body{
+		position:relative;
+	}
+	div#map{
+		position:absolute;
+		top:0;
+		bottom:0;
+		left:0;
+		right:0;
+		margin:auto;
+		width:800px;
+		height:500px;
+		border:1px solid black;
+		font-size:0px;
+	}
+	span{
+		display:inline-block;
+		border:1px solid black;
+		box-sizing:border-box;
+	}
+	span.snake{
+		position:absolute;
+		background-color:red;
+	}
+	span.food{
+		position:absolute;
+		background-color:blue;
+	}	
+	div#achievement{
+		position:absolute;
+		top:100px;
+		bottom:0;
+		left:0;
+		right:0;
+	    margin:auto;
+		width:800px;
+	}
+</style>
+</head>
+<body>
+	<div id="achievement">
+		<label for="">成绩</label>
+		<input type="text" id='fraction' value="0" disabled>
+	</div>
+	<div class="map" id='map'></div>
+	<script type="text/javascript">
+		var box={width:50,height:50}
+		var snake=[];//
+		var fraction=0;
+		var position={
+			right:1,
+			left:2,
+			top:3,  
+			bottom:4 
+		};
+		var dir=position.right;
+		document.onkeyup=function(e){
+			switch(e.keyCode){
+				case 37:dir=position.left;break;
+				case 38:dir=position.top;break;
+				case 39:dir=position.right;break;
+				case 40:dir=position.bottom;break; 
+			} 
+		}
+
+		setMap();
+		showFood();
+		createSnake()
+		var timer=setInterval(snakeMove,200);
+
+		//创建地图
+		function setMap(){
+			var map=document.getElementById('map')
+			var row=Math.floor(map.offsetWidth/box.width);
+			var rol=Math.floor(map.offsetHeight/box.height);
+			var num=row*rol;
+			for(var i=0;i<num;i++){
+				newSpan=document.createElement("span");
+				newSpan.style.width=box.width+'px';
+				newSpan.style.height=box.height+'px';
+				map.appendChild(newSpan)
+			}
+		}
+        
+        //随机食物
+		function showFood(){
+			var map=document.getElementById('map')
+			food=document.createElement("span");
+			food.className='food'
+			food.style.width=box.width+'px';
+			food.style.height=box.height+'px';
+			console.log(Math.floor((map.offsetWidth-2)/box.width*Math.random())*box.width)
+			console.log(Math.floor((map.offsetHeight-2)/box.height*Math.random())*box.height)
+			food.style.left=Math.floor((map.offsetWidth-2)/box.width*Math.random())*box.width+'px'
+			food.style.top=Math.floor((map.offsetHeight-2)/box.height*Math.random())*box.height+'px'
+			map.appendChild(food)
+		}
+         
+        //创建蛇
+		function createSnake(){
+			var map=document.getElementById('map');
+			for(var i=1;i<4;i++){
+				var snakeNode=document.createElement('span');
+				snakeNode.className='snake';
+				snakeNode.style.width=box.width+'px';
+				snakeNode.style.height=box.height+'px';
+				snakeNode.style.left=(i-1)*box.width+'px';
+				snakeNode.style.top=0+'px';
+				if(i==3){
+					snakeNode.style.background='#333'
+					snakeNode.innerHTML='11'
+					snakeNode.style.color="#fff"
+
+				}
+				map.appendChild(snakeNode)
+				snake.push(snakeNode)
+			}
+			console.log(snake)
+		}
+
+        //蛇移动并且吃食物
+		function snakeMove(){
+			var map=document.getElementById('map');
+			var head=snake[snake.length-1];
+			var headTop=head.offsetTop;
+			var headLeft=head.offsetLeft;
+             
+			switch(dir){
+				case position.left:headLeft-=box.width; break;
+				case position.right:headLeft+=box.width; break;
+				case position.top:headTop-=box.height; break;
+				case position.bottom:headTop+=box.height; break;
+				default:break;
+			}
+			
+			//超出地图
+			if(headLeft>map.offsetWidth-2-1){headLeft=0;}
+			if(headLeft<0){headLeft=map.offsetWidth-2-box.width;}
+			if(headTop<0){headTop=map.offsetHeight-2-box.height;}
+			if(headTop>map.offsetHeight-2-1){headTop=0;}
+
+			for(var i=0;i<snake.length-1;i++){
+				snake[i].style.top=snake[i+1].offsetTop+"px";  
+				snake[i].style.left=snake[i+1].offsetLeft+"px"; 
+			}
+
+			 //1.如果吃到食物
+			 
+			if(headLeft==food.offsetLeft&&headTop==food.offsetTop){
+			 	food.className="snake";
+			   document.getElementById('fraction').value=document.getElementById('fraction').value-0+1
+			 	snake.unshift(food); //插入到尾部 push插入到前
+			 	showFood();
+
+			 	return;
+			 }else{
+			 	 head.style.background='#333';
+			 }
+           
+             //判断新蛇头的位置是不是在蛇身体里面
+			 for(var i=0;i<snake.length-1;i++){
+				 if(snake[i].offsetLeft==headLeft&&snake[i].offsetTop==headTop){
+				    alert('您的成绩是：'+document.getElementById('fraction').value+'分');
+				    window.location.reload()
+				 } 
+			 }
+		  head.style.left=headLeft+"px";
+		  head.style.top=headTop=headTop+"px";
+}
+</script>
+</body>
+</html>
